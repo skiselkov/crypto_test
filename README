@@ -32,4 +32,4 @@ become root and modload the appropriate module, e.g.
 # modload debug64/crypto_test
 
 Alternatively, you can use a pair of pre-built modules named
-'correctness_test' and 'speed_test' in this repo.
+'correctness_test64' and 'speed_test64' in this repo.
