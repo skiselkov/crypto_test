@@ -1,0 +1,3 @@
+This is a simple set of test cases for the performance fix work done on
+the Illumos KCF (Kernel Cryptographic Framework) to make sure nothing
+has broken. For more information about Illumos, visit: http://illumos.org/
