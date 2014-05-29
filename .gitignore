@@ -1,0 +1,5 @@
+debug32
+debug64
+obj32
+obj64
+*.o

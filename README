@@ -30,3 +30,6 @@ You should be left with two modules, one in debug32/crypto_test and
 one in debug64/crypto_test. Depending on your kernel type (isainfo -kv),
 become root and modload the appropriate module, e.g.
 # modload debug64/crypto_test
+
+Alternatively, you can use a pair of pre-built modules named
+'correctness_test' and 'speed_test' in this repo.
