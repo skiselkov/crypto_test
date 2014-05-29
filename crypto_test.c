@@ -310,11 +310,10 @@ static uint8_t ecb_tc6_ct[] = {
 
 /*
  * CBC & CTR KAT vectors from:
- * http://www.inconteam.com/software-development/41-encryption\
- * /55-aes-test-vectors
+ * http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
  */
 
-/* AES CBC 128-bit */
+/* F.2.1 (pp.27) CBC-AES128 */
 static uint8_t cbc_tc1_K[] = {
 	0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6,
 	0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c
@@ -344,7 +343,7 @@ static uint8_t cbc_tc1_ct[] = {
 	0x12, 0x0e, 0xca, 0x30, 0x75, 0x86, 0xe1, 0xa7
 };
 
-/* AES CBC 192-bit */
+/* F.2.3 (pp.28) CBC-AES192 */
 static uint8_t cbc_tc2_K[] = {
 	0x8e, 0x73, 0xb0, 0xf7, 0xda, 0x0e, 0x64, 0x52,
 	0xc8, 0x10, 0xf3, 0x2b, 0x80, 0x90, 0x79, 0xe5,
@@ -363,6 +362,7 @@ static uint8_t cbc_tc2_ct[] = {
 	0xd9, 0x20, 0xa9, 0xe6, 0x4f, 0x56, 0x15, 0xcd
 };
 
+/* F.2.5 (pp.28) CBC-AES256 */
 static uint8_t cbc_tc3_K[] = {
 	0x60, 0x3d, 0xeb, 0x10, 0x15, 0xca, 0x71, 0xbe,
 	0x2b, 0x73, 0xae, 0xf0, 0x85, 0x7d, 0x77, 0x81,
@@ -382,7 +382,7 @@ static uint8_t cbc_tc3_ct[] = {
 	0xda, 0x6c, 0x19, 0x07, 0x8c, 0x6a, 0x9d, 0x1b
 };
 
-/* AES CTR 128-bit */
+/* F.5.1 (pp.55) CTR-AES128 */
 #define	ctr_tc1_K	cbc_tc1_K
 static CK_AES_CTR_PARAMS ctr_tc1_IV = {
 	.ulCounterBits = 128,
@@ -403,7 +403,7 @@ static uint8_t ctr_tc1_ct[] = {
 	0x79, 0x21, 0x70, 0xa0, 0xf3, 0x00, 0x9c, 0xee
 };
 
-/* AES CTR 192-bit */
+/* F.5.3 (pp.56) CTR-AES192 */
 #define	ctr_tc2_K	cbc_tc2_K
 static CK_AES_CTR_PARAMS ctr_tc2_IV = {
 	.ulCounterBits = 128,
@@ -424,7 +424,7 @@ static uint8_t ctr_tc2_ct[] = {
 	0x5a, 0x97, 0xda, 0xec, 0x58, 0xc6, 0xb0, 0x50
 };
 
-/* AES CTR 256-bit */
+/* F.5.5 (pp.57) CTR-AES256 */
 #define	ctr_tc3_K	cbc_tc3_K
 static CK_AES_CTR_PARAMS ctr_tc3_IV = {
 	.ulCounterBits = 128,
