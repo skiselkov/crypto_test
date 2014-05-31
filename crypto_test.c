@@ -32,11 +32,12 @@
 #include <sys/systm.h>
 #include <sys/sysmacros.h>
 
-#define CHECK
+#define	CHECK
+
+#define	SPEED_TEST_TIME	3
 
 #define	ENCBLKSZ	(128 * 1024)
-#define	OUTER_ROUNDS	1024ULL
-#define	INNER_ROUNDS	48
+#define	ROUNDS		48
 #define	CRYPTO_SET_RAW_DATA(obj, d, l)		\
 	do {					\
 		obj.cd_format = CRYPTO_DATA_RAW;\
@@ -484,11 +485,13 @@ speed_test(const char *mech_name, boolean_t encrypt)
 	    .ck_length = CRYPTO_BYTES2BITS(sizeof (K))
 	};
 	uint8_t *input = kmem_zalloc(ENCBLKSZ, KM_SLEEP);
-	uint8_t *output = kmem_zalloc(INNER_ROUNDS * ENCBLKSZ + 16, KM_SLEEP);
+	uint8_t *output = kmem_zalloc(ROUNDS * ENCBLKSZ + 16, KM_SLEEP);
 	crypto_mechanism_t mech;
 	crypto_context_t ctx;
 	clock_t start, end;
 	boolean_t first_block = B_TRUE;
+	uint64_t processed = 0;
+
 	if (strcmp(mech_name, SUN_CKM_AES_GCM) == 0) {
 		mech.cm_type = crypto_mech2id(SUN_CKM_AES_GCM);
 		mech.cm_param = (void *)&gcm_params;
@@ -512,8 +515,7 @@ speed_test(const char *mech_name, boolean_t encrypt)
 	bzero(iv, sizeof (iv));
 
 	start = ddi_get_lbolt();
-	for (int i = 0; i < OUTER_ROUNDS; i++) {
-
+	for (;;) {
 		if (encrypt)
 			ret = crypto_encrypt_init(&mech, &kcf_K, NULL, &ctx,
 			    NULL);
@@ -527,9 +529,9 @@ speed_test(const char *mech_name, boolean_t encrypt)
 
 		CRYPTO_SET_RAW_DATA(kcf_input, input, ENCBLKSZ);
 
-		for (int j = 0; j < INNER_ROUNDS; j++) {
+		for (int i = 0; i < ROUNDS; i++) {
 			CRYPTO_SET_RAW_DATA(kcf_output, output,
-			    INNER_ROUNDS * ENCBLKSZ + 16);
+			    ROUNDS * ENCBLKSZ + 16);
 			if (encrypt)
 				ret = crypto_encrypt_update(ctx, &kcf_input,
 				    &kcf_output, NULL);
@@ -542,7 +544,7 @@ speed_test(const char *mech_name, boolean_t encrypt)
 			}
 		}
 		CRYPTO_SET_RAW_DATA(kcf_output, output,
-		    INNER_ROUNDS * ENCBLKSZ + 16);
+		    ROUNDS * ENCBLKSZ + 16);
 
 		if (encrypt)
 			ret = crypto_encrypt_final(ctx, &kcf_output, NULL);
@@ -552,16 +554,20 @@ speed_test(const char *mech_name, boolean_t encrypt)
 			cmn_err(CE_NOTE, "Final problem: %x", ret);
 			goto out;
 		}
+
+		processed += ROUNDS * ENCBLKSZ;
+
+		end = ddi_get_lbolt();
+		if (start + SPEED_TEST_TIME * hz < end)
+			break;
 	}
 
-	end = ddi_get_lbolt();
-
-	if (start == end)
-		end = start + 1;
+	cmn_err(CE_NOTE, "%s[%s]: %llu MB/s", encrypt ? "E" : "D", mech_name,
+	    (long long unsigned) ((processed * hz) / (end - start)) >> 20);
 
 out:
 	kmem_free(input, ENCBLKSZ);
-	kmem_free(output, INNER_ROUNDS * ENCBLKSZ + 16);
+	kmem_free(output, ROUNDS * ENCBLKSZ + 16);
 }
 
 static void
